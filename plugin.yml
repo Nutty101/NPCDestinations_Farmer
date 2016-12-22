@@ -1,0 +1,13 @@
+name: NPCDestinations_Farmer
+main: net.livecar.nuttyworks.destinations_farmer.DestFarmer_Plugin
+description: Plugin for NPC Destinations that enables NPC farmers.
+version: 1.3
+author: Sir_Nutty@Spigot
+softdepend: [NPC_Destinations]
+website: https://www.spigotmc.org/resources/nunpcdestinations-create-living-npcs-1-8-3-1-10-2.13863/
+commands:
+  npcfarmer:
+    description: Bring out the farmer in your NPC.
+    aliases: [nf]
+    usage:  |
+      /npcfarmer help
