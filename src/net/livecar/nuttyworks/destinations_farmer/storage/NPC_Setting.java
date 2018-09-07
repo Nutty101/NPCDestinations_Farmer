@@ -14,6 +14,7 @@ public class NPC_Setting {
 	public int npcID;
 	public HashMap<UUID,Location_Setting> locations;
 	public Location currentDestination;
+	public Location lastAttempt;
 	public CurrentAction currentAction = CurrentAction.IDLE;
 	public NPCDestinationsTrait destinationsTrait;
 	public Date lastAction;
