@@ -18,6 +18,7 @@ public class NPC_Setting {
 	public CurrentAction currentAction = CurrentAction.IDLE;
 	public NPCDestinationsTrait destinationsTrait;
 	public Date lastAction;
+	public Long blockUntil = 0L;
 	
 	public NPC_Setting()	
 	{		

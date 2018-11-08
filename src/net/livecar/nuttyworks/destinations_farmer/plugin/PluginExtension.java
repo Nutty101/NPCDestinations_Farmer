@@ -1,5 +1,6 @@
 package net.livecar.nuttyworks.destinations_farmer.plugin;
 
+import java.util.Date;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
@@ -7,17 +8,17 @@ import org.bukkit.Material;
 
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.util.DataKey;
-import net.livecar.nuttyworks.destinations_farmer.Destinations_Farmer;
+import net.livecar.nuttyworks.destinations_farmer.Farmer;
 import net.livecar.nuttyworks.destinations_farmer.storage.Location_Setting;
 import net.livecar.nuttyworks.destinations_farmer.storage.NPC_Setting;
 import net.livecar.nuttyworks.npc_destinations.api.Destination_Setting;
 import net.livecar.nuttyworks.npc_destinations.citizens.NPCDestinationsTrait;
 import net.livecar.nuttyworks.npc_destinations.plugins.DestinationsAddon;
 
-public class Farmer_Plugin extends DestinationsAddon {
-    Destinations_Farmer pluginReference = null;
+public class PluginExtension extends DestinationsAddon {
+    Farmer pluginReference = null;
 
-    public Farmer_Plugin(Destinations_Farmer instanceRef) {
+    public PluginExtension(Farmer instanceRef) {
         pluginReference = instanceRef;
     }
 
@@ -56,15 +57,20 @@ public class Farmer_Plugin extends DestinationsAddon {
                             message = message.replaceAll("<farmer\\.setting>", "Region Name");
                             message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
                                     : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
+                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
+                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
                         } else if (locSetting.maxDistance > 0) {
                             message = message.replaceAll("<farmer\\.value>", Integer.toString(locSetting.maxDistance));
                             message = message.replaceAll("<farmer\\.setting>", "Max Distance");
                             message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
                                     : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
+                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
+                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
                         } else {
                             message = message.replaceAll("<farmer\\.value>", "Not Set");
                             message = message.replaceAll("<farmer\\.setting>", "Max / Region");
                             message = message.replaceAll("<farmer\\.replant>", "Not set");
+                            message = message.replaceAll("<farmer\\.block>", "non blocking");
                         }
                     }
                 }
@@ -99,6 +105,7 @@ public class Farmer_Plugin extends DestinationsAddon {
         locationConfig.regionName = storageKey.getString("Farmers.region", "");
         locationConfig.maxDistance = storageKey.getInt("Farmers.maxDistance", 0);
         locationConfig.plantExisting = storageKey.getBoolean("Farmers.plantExisting", false);
+        locationConfig.blocking = storageKey.getBoolean("Farmers.blocking", false);
 
         locationConfig.locationID = location.LocationIdent;
         npcFarmer.locations.put(locationConfig.locationID, locationConfig);
@@ -117,6 +124,7 @@ public class Farmer_Plugin extends DestinationsAddon {
             storageKey.setString("Farmers.region", farmerLocation.regionName);
             storageKey.setInt("Farmers.maxDistance", farmerLocation.maxDistance);
             storageKey.setBoolean("Farmers.plantExisting", farmerLocation.plantExisting);
+            storageKey.setBoolean("Farmers.blocking", farmerLocation.blocking);
         }
     }
 
@@ -161,9 +169,8 @@ public class Farmer_Plugin extends DestinationsAddon {
                     pluginReference.monitoredNPCs.put(npc.getId(), pluginReference.npcSettings.get(npc.getId()).locations.get(destination.LocationIdent));
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.IDLE;
                 }
-            } else
-            {
-                //Undo the monitoring for this NPC
+            } else {
+                // Undo the monitoring for this NPC
                 if (pluginReference.monitoredNPCs.containsKey(npc.getId()))
                     pluginReference.monitoredNPCs.remove(npc.getId());
                 trait.unsetMonitoringPlugin();
@@ -192,5 +199,37 @@ public class Farmer_Plugin extends DestinationsAddon {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isDestinationEnabled(NPC npc, NPCDestinationsTrait npcTrait, Destination_Setting location) {
+        if (pluginReference.npcSettings.containsKey(npc.getId())) {
+            if (pluginReference.npcSettings.get(npc.getId()).locations.containsKey(location.LocationIdent)) {
+                Location_Setting farmerLocation = pluginReference.npcSettings.get(npc.getId()).locations.get(location.LocationIdent);
+                if (farmerLocation.blocking) {
+                    if (farmerLocation.blockUntil > (new Date()).getTime())
+                        return false;
+                    else {
+                        if (farmerLocation.blockUntil < new Date().getTime()) {
+                            if (!farmerLocation.regionName.equals("")) {
+                                 if (Farmer.Instance.getProcessingClass.locateNPCWork(pluginReference.npcSettings.get(npc.getId()), location.destination, farmerLocation.regionName, npc) != null) {
+                                    if (npc.getEntity().getLocation().distanceSquared(location.destination) < 4) {
+                                        onNavigationReached(npc, npcTrait, location);
+                                    }
+                                    return true;
+                                } else {
+                                    farmerLocation.blockUntil = new Date().getTime()+ 10000L;
+                                    return false;
+                                }
+                            } else {
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+
     }
 }

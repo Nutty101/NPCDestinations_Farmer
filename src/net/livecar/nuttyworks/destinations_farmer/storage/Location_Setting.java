@@ -8,4 +8,6 @@ public class Location_Setting
 	public String regionName;
 	public int maxDistance;
 	public boolean plantExisting = false;
+	public boolean blocking = false;
+	public Long blockUntil = 0L;
 }

@@ -1,5 +1,6 @@
 package net.livecar.nuttyworks.destinations_farmer.plugin;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.command.CommandSender;
@@ -14,20 +15,21 @@ import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 import net.livecar.nuttyworks.npc_destinations.citizens.NPCDestinationsTrait;
 import net.livecar.nuttyworks.npc_destinations.listeners.commands.CommandInfo;
 
-public class Farmer_Commands {
+public class Commands {
     @CommandInfo(
             name = "locfarmer", 
             group = "External Plugin Commands", 
             languageFile = "farmer", 
             helpMessage = "command_locfarmer_help", 
-            arguments = { "#", "<region>|#" }, 
+            arguments = { "#", "<region>|#" ,"block|replant","block|replant"}, 
             permission = { "npcdestinations.editall.locfarmer", "npcdestinations.editown.locfarmer" }, 
             allowConsole = true, 
             minArguments = 2, 
-            maxArguments = 3)
+            maxArguments = 4)
     public boolean npcDest_locfarmer(DestinationsPlugin destRef, CommandSender sender, NPC npc, String[] inargs, boolean isOwner, NPCDestinationsTrait destTrait) {
+        
         if (inargs.length < 2) {
-            destRef.getMessageManager.sendMessage("destinations", sender, "messages.command_badargs");
+            destRef.getMessageManager.sendMessage("farmer", sender, "messages.command_badargs");
             return true;
         }
 
@@ -37,7 +39,7 @@ public class Farmer_Commands {
             return true;
         }
 
-        Farmer_Plugin addonReference = (Farmer_Plugin) destRef.getPluginManager.getPluginByName("Farming");
+        PluginExtension addonReference = (PluginExtension) destRef.getPluginManager.getPluginByName("Farming");
 
         Destination_Setting destSetting = destTrait.NPCLocations.get(nIndex);
         NPC_Setting farmSetting;
@@ -82,11 +84,12 @@ public class Farmer_Commands {
             locSetting.regionName = "";
         } else {
             // Region name
-            if (addonReference.pluginReference.getWorldGuardPlugin == null) {
+            if (addonReference.pluginReference.getDestinationsPlugin.getWorldGuardPlugin == null) {
                 addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_noworldguard");
                 return true;
             } else {
-                if (!addonReference.pluginReference.getWorldGuardPlugin.getRegionManager(npc.isSpawned()?npc.getEntity().getWorld():((Player)sender).getLocation().getWorld()).hasRegion(inargs[2])) {
+                List<String> wgRegions = addonReference.pluginReference.getDestinationsPlugin.getWorldGuardPlugin.getRegionList(npc.isSpawned()?npc.getEntity().getWorld():((Player)sender).getLocation().getWorld());
+                if (!wgRegions.contains(inargs[2])) {
                     addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_invalidregion");
                     return true;
                 } else {
@@ -96,10 +99,13 @@ public class Farmer_Commands {
             }
         }
 
-        if (inargs.length > 3) {
-            if (inargs[3].equalsIgnoreCase("replant"))
-                locSetting.plantExisting = true;
-        }
+        if (inargs.length > 3)
+            for (int cnt = 3; cnt < inargs.length; cnt++) {
+                if (inargs[cnt].equalsIgnoreCase("replant"))
+                    locSetting.plantExisting = true;
+                if (inargs[cnt].equalsIgnoreCase("block"))
+                    locSetting.blocking = true;
+            }
 
         if (!addonReference.pluginReference.npcSettings.containsKey(npc.getId())) {
             addonReference.pluginReference.npcSettings.put(npc.getId(), farmSetting);
