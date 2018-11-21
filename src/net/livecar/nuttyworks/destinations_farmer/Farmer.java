@@ -1,14 +1,12 @@
 package net.livecar.nuttyworks.destinations_farmer;
 
 import java.io.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import net.citizensnpcs.Citizens;
 import net.livecar.nuttyworks.destinations_farmer.plugin.VersionInterface;
@@ -23,6 +21,9 @@ import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 public class Farmer {
     // For quick reference to this instance of the plugin.
     public static Farmer                  Instance              = null;
+
+    // For quick reference to this instance of the plugin.
+    public FileConfiguration              getDefaultConfig;
 
     // Links to classes
     public Citizens                       getCitizensPlugin;
@@ -79,36 +80,6 @@ public class Farmer {
             Version = 11310;
         } else {
             return;
-        }
-    }
-
-    void getDefaultConfigs() {
-        // Create the default folders
-        if (!DestinationsPlugin.Instance.getDataFolder().exists())
-            DestinationsPlugin.Instance.getDataFolder().mkdirs();
-        if (!languagePath.exists())
-            languagePath.mkdirs();
-
-        // Validate that the default package is in the MountPackages folder. If
-        // not, create it.
-        exportConfig(languagePath, "en_def-farmer.yml");
-
-    }
-
-    void exportConfig(File path, String filename) {
-        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "nuDestinationsFarmer.exportConfig()|");
-        File fileConfig = new File(path, filename);
-        if (!fileConfig.isDirectory()) {
-            // Reader defConfigStream = null;
-            try {
-                FileUtils.copyURLToFile((URL) getClass().getResource("/" + filename), fileConfig);
-            } catch (IOException e1) {
-                if (getDestinationsPlugin != null)
-                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.SEVERE, "nuDestinationsFarmer.exportConfig()|FailedToExtractFile(" + filename + ")");
-                else
-                    logToConsole(" Failed to extract default file (" + filename + ")");
-                return;
-            }
         }
     }
 

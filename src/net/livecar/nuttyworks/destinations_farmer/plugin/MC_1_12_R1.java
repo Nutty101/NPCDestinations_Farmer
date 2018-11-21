@@ -24,6 +24,7 @@ import net.livecar.nuttyworks.destinations_farmer.storage.Location_Setting;
 import net.livecar.nuttyworks.destinations_farmer.storage.NPC_Setting;
 import net.livecar.nuttyworks.destinations_farmer.storage.NPC_Setting.CurrentAction;
 import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
+import net.livecar.nuttyworks.npc_destinations.worldguard.WorldGuardInterface.RegionShape;
 
 public class MC_1_12_R1 implements VersionInterface {
 
@@ -35,7 +36,7 @@ public class MC_1_12_R1 implements VersionInterface {
 
             if (!farmingIterator.hasNext())
                 return;
-            
+
             Entry<Integer, Location_Setting> npcFarmer = farmingIterator.next();
 
             if (npcFarmer.getValue().locationID == null)
@@ -64,8 +65,8 @@ public class MC_1_12_R1 implements VersionInterface {
                         Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Not at destination|" + farmSet.destinationsTrait.currentLocation.destination
                                 + " Dist:" + npc.getEntity().getLocation().distanceSquared(farmSet.destinationsTrait.currentLocation.destination));
 
-                    DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), farmSet.destinationsTrait.currentLocation.destination,
-                            Farmer.Instance.getDestinationsPlugin.maxDistance, new ArrayList<Material>(), 0, true, true, true, "DestinationsFarmer");
+                    DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), farmSet.destinationsTrait.currentLocation.destination, Farmer.Instance.getDestinationsPlugin.maxDistance,
+                            new ArrayList<Material>(), 0, true, true, true, "DestinationsFarmer");
                 } else {
                     if (Farmer.Instance.monitoredNPCs.containsKey(npc.getId())) {
                         if (Farmer.Instance.getDestinationsPlugin != null)
@@ -83,7 +84,7 @@ public class MC_1_12_R1 implements VersionInterface {
 
                 break;
             case TRAVERSING:
-                if (farmSet.currentDestination != null && !npc.getNavigator().isNavigating() && farmSet.currentDestination.distanceSquared(npc.getEntity().getLocation()) < 4) {
+                if (farmSet.currentDestination != null && !npc.getNavigator().isNavigating() && farmSet.currentDestination.distance(npc.getEntity().getLocation()) < 12) {
                     Location destBlock = farmSet.currentDestination.clone();
 
                     // Close enough, farm the block
@@ -141,6 +142,29 @@ public class MC_1_12_R1 implements VersionInterface {
                                 .toString() + " Data:" + farmSet.currentDestination.getBlock().getData());
 
                     switch (destBlock.getBlock().getType()) {
+                    case COCOA:
+                        net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
+                        
+                        if (npc.getEntity() instanceof Player)
+                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        
+                        addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
+
+                        PlaySound(destBlock, soundType.TILL_DIRT);
+                        
+                        if (npcFarmer.getValue().plantExisting)
+                            destBlock.getBlock().setData((byte) 0);
+                        else
+                            destBlock.clone().getBlock().setType(Material.AIR);
+                        
+                        farmSet.lastAction = new Date();
+                        farmSet.currentDestination = null;
+                        farmSet.currentAction = CurrentAction.IDLE;
+
+                        if (Farmer.Instance.getDestinationsPlugin != null)
+                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Cactus");
+                        break;
+                        
                     case CACTUS:
                         // Validate the height of the cactus
                         int cactusTop = 0;
@@ -151,7 +175,10 @@ public class MC_1_12_R1 implements VersionInterface {
                             }
                         }
                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        
+                        if (npc.getEntity() instanceof Player)
+                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        
                         addToInventory(npc, destBlock.clone().add(0, cactusTop, 0).getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
                         PlaySound(destBlock, soundType.TILL_DIRT);
@@ -174,7 +201,9 @@ public class MC_1_12_R1 implements VersionInterface {
                         }
 
                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        if (npc.getEntity() instanceof Player)
+                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        
                         PlaySound(destBlock, soundType.TILL_DIRT);
                         addToInventory(npc, destBlock.clone().add(0, caneTop, 0).getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
                         destBlock.clone().add(0, caneTop, 0).getBlock().setType(Material.AIR);
@@ -190,7 +219,10 @@ public class MC_1_12_R1 implements VersionInterface {
                     case POTATO:
                         if (destBlock.getBlock().getData() == (byte) 7) {
                             net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                            
+                            if (npc.getEntity() instanceof Player)
+                                net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                            
                             PlaySound(destBlock, soundType.TILL_DIRT);
                             addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
@@ -211,7 +243,10 @@ public class MC_1_12_R1 implements VersionInterface {
                     case BEETROOT_SEEDS:
                         if (destBlock.getBlock().getData() == (byte) 3) {
                             net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                            
+                            if (npc.getEntity() instanceof Player)
+                                net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                            
                             PlaySound(destBlock, soundType.TILL_DIRT);
                             addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
@@ -233,7 +268,10 @@ public class MC_1_12_R1 implements VersionInterface {
                     case SPECKLED_MELON:
                     case WHEAT:
                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+
+                        if (npc.getEntity() instanceof Player)
+                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                        
                         PlaySound(destBlock, soundType.TILL_DIRT);
                         addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
                         destBlock.getBlock().setType(Material.AIR);
@@ -269,7 +307,6 @@ public class MC_1_12_R1 implements VersionInterface {
                     newLocation = locateNPCWork(farmSet, npc.getEntity().getLocation(), npcFarmer.getValue().regionName, npc);
                 }
 
-                
                 if (newLocation == null) {
                     if (npcFarmer.getValue().blocking) {
                         npcFarmer.getValue().blockUntil = new Date().getTime() + 10000L;
@@ -297,8 +334,8 @@ public class MC_1_12_R1 implements VersionInterface {
 
                 net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), walkToLocation);
 
-                DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), walkToLocation, Farmer.Instance.getDestinationsPlugin.maxDistance,
-                        new ArrayList<Material>(), 0, true, true, true, "DestinationsFarmer");
+                DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), walkToLocation, Farmer.Instance.getDestinationsPlugin.maxDistance, new ArrayList<Material>(), 0, true, true,
+                        true, "DestinationsFarmer");
                 break;
             }
         }
@@ -391,6 +428,8 @@ public class MC_1_12_R1 implements VersionInterface {
         if (npc.getEntity().getLocation().distance(regionBounds[1]) > maxRadius)
             maxRadius = npc.getEntity().getLocation().distance(regionBounds[1]);
 
+        RegionShape regionShape = DestinationsPlugin.Instance.getWorldGuardPlugin.getRegionShape(regionBounds[0], regionName);
+
         // Look next to the NPC to see if there is any work to be done.
         int distance = 0;
         while (distance < maxRadius) {
@@ -413,19 +452,20 @@ public class MC_1_12_R1 implements VersionInterface {
                         if (oNewDest.equals(farmSet.currentDestination))
                             continue;
 
-                        if (DestinationsPlugin.Instance.getWorldGuardPlugin.isInRegion(oNewDest, regionName)) {
+                        if (regionShape == RegionShape.POLYGON)
+                            if (!DestinationsPlugin.Instance.getWorldGuardPlugin.isInRegion(oNewDest, regionName))
+                                continue;
 
-                            if (oNewDest.getBlock().getType() == Material.SOIL) {
-                                if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
-                                    if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
-                                        return oNewDest.clone();
-                                    }
+                        if (oNewDest.getBlock().getType() == Material.SOIL) {
+                            if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
+                                if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
+                                    return oNewDest.clone();
                                 }
-                            } else {
-                                if (isFarmable(oNewDest, npc)) {
-                                    if (!isFarmerNPCClose(oNewDest.clone(), npc))
-                                        return oNewDest;
-                                }
+                            }
+                        } else {
+                            if (isFarmable(oNewDest, npc)) {
+                                if (!isFarmerNPCClose(oNewDest.clone(), npc))
+                                    return oNewDest;
                             }
                         }
                     }
@@ -491,6 +531,7 @@ public class MC_1_12_R1 implements VersionInterface {
     @SuppressWarnings("deprecation")
     private boolean isFarmable(Location blockLocation, NPC npc) {
         Equipment npcEquip = npc.getTrait(Equipment.class);
+        
         switch (blockLocation.getBlock().getType()) {
         case CACTUS:
             // Validate the height of the cactus
@@ -520,6 +561,7 @@ public class MC_1_12_R1 implements VersionInterface {
             } else {
                 return false;
             }
+        case COCOA:
         case CROPS:
         case CARROT:
         case POTATO:
@@ -576,7 +618,7 @@ public class MC_1_12_R1 implements VersionInterface {
         }
         return false;
     }
-   
+
     private Location findWalkableNextTo(NPC npc, Location blockLocation) {
 
         switch (blockLocation.getBlock().getType()) {
@@ -627,21 +669,23 @@ public class MC_1_12_R1 implements VersionInterface {
         }
 
         Location farmLocation = blockLocation.clone().add(xAxis, 0, zAxis);
-        if (DestinationsPlugin.Instance.getPathClass.isLocationWalkable(farmLocation.clone())) {
+        if (DestinationsPlugin.Instance.getPathClass.isLocationWalkable(farmLocation.clone(),false,false,false)) {
             return farmLocation.clone();
         }
 
-        int counter = 0;
-        while (counter < 25) {
-            for (byte y = -1; y <= 1; y++) {
-                xAxis = (Math.random() * 2 + 1) == 1 ? -1 : 1;
-                zAxis = (Math.random() * 2 + 1) == 1 ? -1 : 1;
-                if (DestinationsPlugin.Instance.getPathClass.isLocationWalkable(blockLocation.clone().add(xAxis, y, zAxis))) {
-                    return blockLocation.clone().add(xAxis, y, zAxis);
+        if (!blockLocation.getBlock().getType().isSolid())
+            return blockLocation;
+
+        for (byte x = -1; x < 2; x++) {
+            for (byte z = -1; z < 2; z++) {
+                for (byte y = -1; y <= 1; y++) {
+                    if (DestinationsPlugin.Instance.getPathClass.isLocationWalkable(blockLocation.clone().add(x, y, z), false, false, false)) {
+                        return blockLocation.clone().add(x, y, z);
+                    }
                 }
             }
-            counter++;
         }
+        
         return null;
     }
 
