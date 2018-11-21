@@ -110,6 +110,9 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
         if (!Farmer.Instance.languagePath.exists())
             Farmer.Instance.languagePath.mkdirs();
 
+        if (!(new File(getDataFolder(), "config.yml").exists()))
+            exportConfig(getDataFolder(), "config.yml");
+        
         // Validate that the default package is in the MountPackages folder. If
         // not, create it.
         Farmer.Instance.getDefaultConfig = Farmer.Instance.getDestinationsPlugin.getUtilitiesClass.loadConfiguration(new File(this.getDataFolder(), "config.yml"));
