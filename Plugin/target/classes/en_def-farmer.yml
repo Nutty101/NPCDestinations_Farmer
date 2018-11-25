@@ -1,0 +1,45 @@
+﻿language:
+  version: 1.0.5
+
+messages:
+  no_permissions: "[{\"text\":\"[\",\"color\":\"yellow\"},{\"text\":\"nuDestinationFarmer\",\"color\":\"green\"},{\"text\":\"] \",\"color\":\"yellow\"},{\"text\":\"No permissions\"}]"
+  invalid_command:  "[{\"text\":\"[\",\"color\":\"yellow\"},{\"text\":\"nuDestinationFarmer\",\"color\":\"green\"},{\"text\":\"] \",\"color\":\"yellow\"},{\"text\":\"Invalid command\"}]"
+  invalid_npc:  "[{\"text\":\"[\",\"color\":\"yellow\"},{\"text\":\"nuDestinationFarmer\",\"color\":\"green\"},{\"text\":\"] \",\"color\":\"yellow\"},{\"text\":\"You must have a NPC selected to use this command or add --npc # anywhere in your command.\"}]"
+  npc_permission: "[{\"text\":\"[\",\"color\":\"yellow\"},{\"text\":\"nuDestinationFarmer\",\"color\":\"green\"},{\"text\":\"] \",\"color\":\"yellow\"},{\"text\":\"You do not have permissions to this NPC\"}]"
+  plugin_debug: "[{\"text\":\"&2[&enuDestinationFarmer&2] &6 <message>\"}]"
+  plugin_help_command: ",{\"text\":\"locfarmer\",\"color\":\"yellow\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/npcdest locfarmer \"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"&eUsage&2:\n  &f/npcdest locfarmer <loc#> <Max Distance / WGRegion Name> {replant}&6--npc #\n&eDescription&2:\n  &fSets the location to be designated for farming.\n&eVariables&2:\n&7    Max Distance&f - Sets the max distance the NPC will farm from\n&f        the destination location.\n&7    WGRegion Name&f - The NPC will farm this region only\n&7    Replant&f - &2Optional&f NPC will replant the same crop type\n&ePermission&2:\n  &fnpcdestinations.edit<own/all>.locfarm\"}},{\"text\":\" \",\"color\":\"white\"}" 
+  plugin_destination: ",{\"text\":\"&a♨&e\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"/npcdest --npc <npc.id> locfarmer <location.id> \"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"                 &6Farmer Settings \n&eCurrent Setting&2:\n&7   <farmer.setting>&2: &f <farmer.value>\n&7   Replant&2: &f <farmer.replant>\n&7   Block&2: &f <farmer.block>\n&f   Leave the arguments blank to remove.\n&eUsage&2:\n  &f/npcdest locfarmer <loc#> <Max Distance / WGRegion Name> <replant same>&6--npc #\n&eDescription&2:\n  &fSets the location to be designated for farming.\n&eVariables&2:\n&7    Max Distance&f - Sets the max distance the NPC will farm from\n&f        the destination location.\n&7    WGRegion Name&f - The NPC will farm this region only\n&7    Replant&f - &2Optional&f NPC will replant the same crop type\n&7    block&f - &2Optional&Block location when nothing to do\n&ePermission&2:\n<permission>\"}}" 
+  plugin_description: "NPC Destinations Farmers \n&f  This plugin allows you to setup an NPC to farm crops based\n&f on a radius distance, or a worldguard region.\n\n&f  All items that are farmed, are put into\n&f the npc's inventory. \n&ePermission&2:\n  &fnpcdestinations.edit<own/all>.locfarm" 
+  command_badargs: "[{\"text\":\"Invalid arguments /npcdest locfarmer <loc#> <distance/region> {replant}\",\"color\":\"GREEN\"}]"
+  command_noworldguard: "[{\"text\":\"Regions are not supported without worldguard \",\"color\":\"GREEN\"}]"
+  command_invalidregion: "[{\"text\":\"That region does not exist in this world\",\"color\":\"GREEN\"}]"
+  command_added_notactive: "[{\"text\":\"The location has been assigned as a farmer location. Settings: <farmer.setting> <farmer.value>. <farmer.replant>\",\"color\":\"GREEN\"}]"
+  command_added_active: "[{\"text\":\"The location has been assigned as a farmer location. Settings: <farmer.setting> <farmer.value>, <farmer.replant>, and it has been activated.\",\"color\":\"GREEN\"}]"
+  command_removed: "[{\"text\":\"Farmer has been removed from the requested location\",\"color\":\"GREEN\"}]"
+
+result_messages:
+  true_text: true
+  false_text: false
+  disabled_text: Disabled
+  replant: "Plant's the same crop"
+  replant_hand: "Plant's item in hand"
+  blocking: Blocking
+  nonblocking: Unblocked
+
+console_messages:
+  plugin_ondisable: nuDestinationFarmer shutdown.
+  plugin_savingdata: Saving NPC data
+  plugin_savingerror: Failed saving NPC data
+  plugin_error: Error> <message>
+  plugin_debug: Debug> <message>
+  plugin_langloaded: Language Loaded (<message>)
+  plugin_version: MC Version found (<message>)
+  plugin_unknownversion: Unknown minecraft version <message>. Check for updates (https://www.spigotmc.org/resources/nunpcdestinations-automate-npc-travel-and-locations-1-8-3-1-9-4.13863/)
+  worldguard_found: Worldguard found V(<message>), regions supported
+  worldguard_notfound: Worldguard not found, region support disabled
+
+debug_messages:
+  path_processing: "[{\"text\":\"[\",\"color\":\"yellow\"},{\"text\":\"nuDestinationFarmer\",\"color\":\"green\"},{\"text\":\"] \",\"color\":\"yellow\"},{\"text\":\"Processing for (<npc.id>) <npc.name>\",\"color\":\"GREEN\"}]"
+  
+command_jsonhelp:
+  command_locfarmer_help: "{\"text\":\"<commandname>\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"/npcdest <commandname> \"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"&6Destinations Farmer Plugin \n&eUsage&2:\n  &f/npcdest <commandname> <loc#> <Max Distance / WGRegion Name> <replant>&6--npc #\n&eDescription&2:\n  &fSets the location to be designated for farming.\n&eVariables&2:\n&7    Max Distance&f - Sets the max distance the NPC will farm from\n&f        the destination location.\n&7    WGRegion Name&f - The NPC will farm this region only\n&7    Replant&f - &2Optional&f NPC will replant the same crop type\n&ePermission&2:\n<permission>\"}}" 
