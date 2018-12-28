@@ -1,7 +1,7 @@
 name: NPCDestinations_Farmer
 main: net.livecar.nuttyworks.destinations_farmer.BukkitPlugin
 description: Plugin for NPC Destinations that enables NPC farmers.
-version: 2.3.3
+version: 2.3.5
 author: Sir_Nutty@Spigot
 api-version: 1.13
 softdepend: [NPC_Destinations]

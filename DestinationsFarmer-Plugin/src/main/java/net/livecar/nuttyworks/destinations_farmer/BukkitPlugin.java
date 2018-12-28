@@ -19,25 +19,25 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
 
     public void onEnable() {
         if (getServer().getPluginManager().getPlugin("NPC_Destinations") == null) {
-            Bukkit.getLogger().log(java.util.logging.Level.INFO, "[" + getDescription().getName() + "] " + "NPCDestinations2 not found, not registering as plugin");
+            Bukkit.getLogger().log(Level.INFO, "[" + getDescription().getName() + "] " + "NPCDestinations2 not found, not registering as plugin");
             getServer().getPluginManager().disablePlugin(this);
             return;
         } else {
             String[] versionParts = getServer().getPluginManager().getPlugin("NPC_Destinations").getDescription().getVersion().split("\\.");
             if (versionParts[0].equalsIgnoreCase("1")) {
-                Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations V1 was found, This requires V2. Not registering as plugin");
+                Bukkit.getLogger().log(Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations V1 was found, This requires V2. Not registering as plugin");
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             } else if (versionParts.length < 3) {
-                Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations older than 2.3.2 was found, please update to the latest. Not registering as plugin");
+                Bukkit.getLogger().log(Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations older than 2.3.2 was found, please update to the latest. Not registering as plugin");
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             } else if (versionParts[0].equals("2") && Integer.parseInt(versionParts[1]) <= 3 && Integer.parseInt(versionParts[2]) < 2) {
-                Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations older than 2.3.2 was found, please update to the latest. Not registering as plugin");
+                Bukkit.getLogger().log(Level.SEVERE, "[" + getDescription().getName() + "] " + "NPCDestinations older than 2.3.2 was found, please update to the latest. Not registering as plugin");
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             } else if (!getServer().getPluginManager().getPlugin("NPC_Destinations").isEnabled()) {
-                Bukkit.getLogger().log(java.util.logging.Level.INFO, "[" + getDescription().getName() + "] " + "NPCDestinations was found, but was disabled. Not registering as plugin");
+                Bukkit.getLogger().log(Level.INFO, "[" + getDescription().getName() + "] " + "NPCDestinations was found, but was disabled. Not registering as plugin");
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             }

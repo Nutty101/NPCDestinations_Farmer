@@ -1,4 +1,4 @@
-[![Spigot Link](http://www.livecar.net/random/destinations_farmer.png)](https://www.spigotmc.org/resources/nunpcdestinations-farmer-addon.33237/) 
+[![Spigot Link](http://www.livecar.net/random/destinations_Farmer.png)](https://www.spigotmc.org/resources/nunpcdestinations-farmer-addon.33237/) 
 
 ## About the plugin:
    This add on to the Destinations plugin offers your NPC the ability to till, harvest, and plant crops on a farm. Fully automated farms are now possible with one simple command.

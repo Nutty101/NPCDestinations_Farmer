@@ -1,4 +1,4 @@
-package net.livecar.nuttyworks.destinations_farmer.storage;
+package net.livecar.nuttyworks.destinations_farmer.plugin.storage;
 
 import java.util.Date;
 import java.util.HashMap;

@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import net.citizensnpcs.api.npc.NPC;
-import net.livecar.nuttyworks.destinations_farmer.storage.Location_Setting;
-import net.livecar.nuttyworks.destinations_farmer.storage.NPC_Setting;
-import net.livecar.nuttyworks.destinations_farmer.storage.NPC_Setting.CurrentAction;
+import net.livecar.nuttyworks.destinations_farmer.plugin.storage.Location_Setting;
+import net.livecar.nuttyworks.destinations_farmer.plugin.storage.NPC_Setting;
+import net.livecar.nuttyworks.destinations_farmer.plugin.storage.NPC_Setting.CurrentAction;
 import net.livecar.nuttyworks.npc_destinations.api.Destination_Setting;
 import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 import net.livecar.nuttyworks.npc_destinations.citizens.NPCDestinationsTrait;
