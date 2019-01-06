@@ -36,7 +36,6 @@ public class Farmer {
 
     // variables
     public int                            Version               = 10000;
-    public int                            entityRadius          = 47 * 47;
 
     public Map<Integer, NPC_Setting>      npcSettings           = new HashMap<Integer, NPC_Setting>();
     public Map<Integer, Location_Setting> monitoredNPCs         = new ConcurrentHashMap<Integer, Location_Setting>();

@@ -52,7 +52,7 @@ public class MC_1_12_R1 implements VersionInterface {
             case AIR:
                 return Material.AIR;
         }
-        return null;
+        return Material.AIR;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MC_1_12_R1 implements VersionInterface {
             case AIR:
                 return FarmMaterial.AIR;
         }
-        return null;
+        return FarmMaterial.AIR;
     }
 
     @SuppressWarnings("deprecation")

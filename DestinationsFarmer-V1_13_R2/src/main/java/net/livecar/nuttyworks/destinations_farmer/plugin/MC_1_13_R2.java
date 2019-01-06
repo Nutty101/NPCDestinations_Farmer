@@ -53,7 +53,7 @@ public class MC_1_13_R2 implements VersionInterface {
             case AIR:
                 return Material.AIR;
         }
-        return null;
+        return Material.AIR;
     }
 
     @Override
@@ -99,7 +99,7 @@ public class MC_1_13_R2 implements VersionInterface {
             case AIR:
                 return FarmMaterial.AIR;
         }
-        return null;
+        return FarmMaterial.AIR;
     }
 
     @Override
