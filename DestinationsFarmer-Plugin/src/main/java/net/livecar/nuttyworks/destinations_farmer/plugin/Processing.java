@@ -505,7 +505,7 @@ public class Processing {
                 continue;
 
             NPC tmpNPC = CitizensAPI.getNPCRegistry().getById(entry.getKey());
-            if (tmpNPC != null)
+            if (tmpNPC != null && tmpNPC.isSpawned())
                 if (tmpNPC.getEntity().getLocation().distanceSquared(location) < 25)
                     return true;
 
