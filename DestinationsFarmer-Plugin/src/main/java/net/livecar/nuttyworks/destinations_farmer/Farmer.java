@@ -5,16 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.livecar.nuttyworks.destinations_farmer.plugin.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import net.citizensnpcs.Citizens;
 import net.livecar.nuttyworks.destinations_farmer.plugin.plugin.VersionInterface;
-import net.livecar.nuttyworks.destinations_farmer.plugin.Processing;
-import net.livecar.nuttyworks.destinations_farmer.plugin.MC_1_12_R1;
-import net.livecar.nuttyworks.destinations_farmer.plugin.MC_1_13_R2;
-import net.livecar.nuttyworks.destinations_farmer.plugin.Commands;
-import net.livecar.nuttyworks.destinations_farmer.plugin.PluginExtension;
 import net.livecar.nuttyworks.destinations_farmer.plugin.storage.Location_Setting;
 import net.livecar.nuttyworks.destinations_farmer.plugin.storage.NPC_Setting;
 import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
@@ -81,6 +77,9 @@ public class Farmer {
         } else if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_13_R2")) {
             getBridge = new MC_1_13_R2();
             Version = 11310;
+        } else if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_14_R1")) {
+            getBridge = new MC_1_14_R1();
+            Version = 11410;
         } else {
             return;
         }
