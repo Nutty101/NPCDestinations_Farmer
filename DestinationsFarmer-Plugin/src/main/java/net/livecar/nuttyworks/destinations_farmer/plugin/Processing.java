@@ -441,6 +441,11 @@ public class Processing {
                             if (!DestinationsPlugin.Instance.getWorldGuardPlugin.isInRegion(oNewDest, regionName))
                                 continue;
 
+                        if (Farmer.Instance.getDestinationsPlugin.getPlotSquared != null) {
+                            if (!Farmer.Instance.getDestinationsPlugin.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
+                                continue;
+                        }
+
                         if (oNewDest.getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
                             if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
                                 if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
@@ -465,35 +470,52 @@ public class Processing {
 
     public Location locateNPCWork(NPC_Setting farmSet, Location sourceLocation, int maxRadius, NPC npc) {
 
+        if (farmSet.destinationsTrait.currentLocation == null)
+            return null;
+
         // Look next to the NPC to see if there is any work to be done.
         int distance = 0;
-        while (distance < maxRadius) {
 
-            for (int x = (0 - distance); x <= distance; x++) {
-                for (int y = -3; y <= 3; y++) {
-                    for (int z = (0 - distance); z <= distance; z++) {
+        int maxDist = (maxRadius * maxRadius);
 
-                        Location oNewDest = npc.getEntity().getLocation().add(x, y, z);
+        Location startLoc = sourceLocation;
 
-                        if (oNewDest.equals(farmSet.currentDestination))
-                            continue;
+        for (int i = 0;i<2;i++) {
+            while (distance < maxRadius) {
+                for (int x = (0 - distance); x <= distance; x++) {
+                    for (int y = -3; y <= 3; y++) {
+                        for (int z = (0 - distance); z <= distance; z++) {
 
-                        if (oNewDest.getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
-                            if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
-                                if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
-                                    return oNewDest.clone();
-                                }
+                            Location oNewDest = startLoc.clone().add(x, y, z);
+
+                            if (oNewDest.equals(farmSet.currentDestination))
+                                continue;
+
+                            if (Farmer.Instance.getDestinationsPlugin.getPlotSquared != null) {
+                                if (!Farmer.Instance.getDestinationsPlugin.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
+                                    continue;
                             }
-                        } else {
-                            if (isFarmable(oNewDest, npc)) {
-                                if (!isFarmerNPCClose(oNewDest.clone(), npc))
-                                    return oNewDest;
+
+                            if (oNewDest.getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
+                                if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
+                                    if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
+                                        if (oNewDest.distanceSquared(farmSet.destinationsTrait.currentLocation.destination) <= maxDist)
+                                            return oNewDest.clone();
+                                    }
+                                }
+                            } else {
+                                if (isFarmable(oNewDest, npc)) {
+                                    if (!isFarmerNPCClose(oNewDest.clone(), npc))
+                                        if (oNewDest.distanceSquared(farmSet.destinationsTrait.currentLocation.destination) <= maxDist)
+                                            return oNewDest.clone();
+                                }
                             }
                         }
                     }
                 }
+                distance++;
             }
-            distance++;
+            startLoc = farmSet.destinationsTrait.currentLocation.destination;
         }
 
         return null;
