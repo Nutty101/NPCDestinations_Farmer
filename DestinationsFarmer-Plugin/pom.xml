@@ -41,6 +41,13 @@
             <scope>compile</scope>
             <optional>false</optional>
         </dependency>
+        <dependency>
+            <groupId>net.livecar.nuttyworks.destinations_farmer</groupId>
+            <artifactId>DestinationsFarmer-V1_14_R2</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <optional>false</optional>
+        </dependency>
 
         <!--Spigot API-->
         <dependency>
