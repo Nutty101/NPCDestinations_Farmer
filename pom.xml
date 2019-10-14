@@ -10,7 +10,6 @@
     <modules>
         <module>DestinationsFarmer-Plugin</module>
         <module>DestinationsFarmer-V1_14_R2</module>
-        <module>DestinationsFarmer-V1_14_R1</module>
         <module>DestinationsFarmer-V1_13_R2</module>
         <module>DestinationsFarmer-V1_12_R1</module>
         <module>DestinationsFarmer-API</module>
