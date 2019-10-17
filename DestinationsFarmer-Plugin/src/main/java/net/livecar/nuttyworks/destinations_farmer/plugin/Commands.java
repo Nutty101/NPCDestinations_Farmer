@@ -54,7 +54,7 @@ public class Commands {
             // Remove the settings, and detach this from the location.
             if (addonReference.pluginReference.monitoredNPCs.containsKey(npc.getId())) {
                 if (addonReference.pluginReference.monitoredNPCs.get(npc.getId()).locationID.equals(destSetting.LocationIdent)) {
-                    addonReference.pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId()
+                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId()
                             + "|New Location,clearing monitors and releasing control.");
                     destTrait.unsetMonitoringPlugin();
                     addonReference.pluginReference.npcSettings.get(npc.getId()).currentAction = CurrentAction.IDLE;
@@ -64,7 +64,7 @@ public class Commands {
             }
             if (farmSetting.locations.containsKey(destSetting.LocationIdent)) {
                 farmSetting.locations.remove(destSetting.LocationIdent);
-                addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_removed", destTrait, destSetting);
+                DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.command_removed", destTrait, destSetting);
             }
             return true;
         }
@@ -84,13 +84,13 @@ public class Commands {
             locSetting.regionName = "";
         } else {
             // Region name
-            if (addonReference.pluginReference.getDestinationsPlugin.getWorldGuardPlugin == null) {
-                addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_noworldguard");
+            if (DestinationsPlugin.Instance.getWorldGuardPlugin == null) {
+                DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.command_noworldguard");
                 return true;
             } else {
-                List<String> wgRegions = addonReference.pluginReference.getDestinationsPlugin.getWorldGuardPlugin.getRegionList(npc.isSpawned()?npc.getEntity().getWorld():((Player)sender).getLocation().getWorld());
+                List<String> wgRegions = DestinationsPlugin.Instance.getWorldGuardPlugin.getRegionList(npc.isSpawned()?npc.getEntity().getWorld():((Player)sender).getLocation().getWorld());
                 if (!wgRegions.contains(inargs[2])) {
-                    addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_invalidregion");
+                    DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.command_invalidregion");
                     return true;
                 } else {
                     locSetting.regionName = inargs[2];
@@ -109,19 +109,19 @@ public class Commands {
 
         if (!addonReference.pluginReference.npcSettings.containsKey(npc.getId())) {
             addonReference.pluginReference.npcSettings.put(npc.getId(), farmSetting);
-            addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.plugin_debug");
+            DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.plugin_debug");
         }
 
         if (locSetting.locationID.equals(destTrait.currentLocation.LocationIdent)) {
-            addonReference.pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "Farmer_Plugin.onUserCommand|NPC:" + npc.getId() + "|Location added, starting monitor");
+            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "Farmer_Plugin.onUserCommand|NPC:" + npc.getId() + "|Location added, starting monitor");
             NPCDestinationsTrait trait = npc.getTrait(NPCDestinationsTrait.class);
             trait.setMonitoringPlugin(addonReference.pluginReference.getPluginReference, destTrait.currentLocation);
 
             addonReference.pluginReference.monitoredNPCs.put(npc.getId(), addonReference.pluginReference.npcSettings.get(npc.getId()).locations.get(destTrait.currentLocation.LocationIdent));
 
-            addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_added_active", destTrait, destTrait.currentLocation);
+            DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.command_added_active", destTrait, destTrait.currentLocation);
         } else {
-            addonReference.pluginReference.getDestinationsPlugin.getMessageManager.sendMessage("farmer", sender, "messages.command_added_notactive", destTrait, destTrait.currentLocation);
+            DestinationsPlugin.Instance.getMessageManager.sendMessage("farmer", sender, "messages.command_added_notactive", destTrait, destTrait.currentLocation);
         }
         return true;
     }

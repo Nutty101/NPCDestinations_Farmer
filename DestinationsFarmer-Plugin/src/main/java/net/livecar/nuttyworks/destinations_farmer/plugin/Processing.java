@@ -31,9 +31,16 @@ import net.livecar.nuttyworks.npc_destinations.worldguard.WorldGuardInterface.Re
 
 public class Processing {
 
-    public void pluginTick() {
+    private Farmer  farmerRef;
 
-        Iterator<Entry<Integer, Location_Setting>> farmingIterator = Farmer.Instance.monitoredNPCs.entrySet().iterator();
+    public Processing(Farmer farmerReference)
+    {
+        farmerRef = farmerReference;
+    }
+
+    public void onPluginTick() {
+
+        Iterator<Entry<Integer, Location_Setting>> farmingIterator = farmerRef.monitoredNPCs.entrySet().iterator();
         while (farmingIterator.hasNext()) {
 
             if (!farmingIterator.hasNext())
@@ -54,31 +61,31 @@ public class Processing {
             if (npc.getNavigator().isNavigating())
                 continue;
 
-            NPC_Setting farmSet = Farmer.Instance.npcSettings.get(npcFarmer.getKey());
+            NPC_Setting farmSet = farmerRef.npcSettings.get(npcFarmer.getKey());
             Equipment npcEquip = npc.getTrait(Equipment.class);
 
-            if (Farmer.Instance.getDestinationsPlugin != null)
-                Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Current Action|" + farmSet.currentAction.toString());
+            if (DestinationsPlugin.Instance != null)
+                DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Current Action|" + farmSet.currentAction.toString());
 
             switch (farmSet.currentAction) {
                 case ABORTING:
                     if (farmSet.destinationsTrait != null && farmSet.destinationsTrait.currentLocation != null && farmSet.destinationsTrait.currentLocation.destination.distanceSquared(npc.getEntity().getLocation()) > 3) {
-                        if (Farmer.Instance.getDestinationsPlugin != null)
-                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Not at destination|" + farmSet.destinationsTrait.currentLocation.destination
+                        if (DestinationsPlugin.Instance != null)
+                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Not at destination|" + farmSet.destinationsTrait.currentLocation.destination
                                     + " Dist:" + npc.getEntity().getLocation().distanceSquared(farmSet.destinationsTrait.currentLocation.destination));
 
-                        DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), farmSet.destinationsTrait.currentLocation.destination, Farmer.Instance.getDestinationsPlugin.maxDistance,
+                        DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), farmSet.destinationsTrait.currentLocation.destination, DestinationsPlugin.Instance.maxDistance,
                                 new ArrayList<Material>(), 0, true, true, true, "DestinationsFarmer");
                         return;
                     } else {
-                        if (Farmer.Instance.monitoredNPCs.containsKey(npc.getId())) {
-                            if (Farmer.Instance.getDestinationsPlugin != null)
-                                Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|ABORTED|Removing monitors");
+                        if (farmerRef.monitoredNPCs.containsKey(npc.getId())) {
+                            if (DestinationsPlugin.Instance != null)
+                                DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|ABORTED|Removing monitors");
 
                             farmSet.destinationsTrait.unsetMonitoringPlugin();
-                            Farmer.Instance.npcSettings.get(npc.getId()).currentAction = CurrentAction.IDLE;
-                            Farmer.Instance.npcSettings.get(npc.getId()).currentDestination = null;
-                            Farmer.Instance.monitoredNPCs.remove(npc.getId());
+                            farmerRef.npcSettings.get(npc.getId()).currentAction = CurrentAction.IDLE;
+                            farmerRef.npcSettings.get(npc.getId()).currentDestination = null;
+                            farmerRef.monitoredNPCs.remove(npc.getId());
                             continue;
                         }
                     }
@@ -91,13 +98,13 @@ public class Processing {
                         Location destBlock = farmSet.currentDestination.clone();
 
                         // Close enough, farm the block
-                        FarmMaterial convertMat = Farmer.Instance.getBridge.convertMaterial(farmSet.currentDestination.getBlock().getType());
+                        FarmMaterial convertMat = farmerRef.getBridge.convertMaterial(farmSet.currentDestination.getBlock().getType());
                         if (convertMat != null) {
                             switch (convertMat) {
                                 case GRASS_BLOCK:
                                 case DIRT:
-                                    if (Farmer.Instance.getDestinationsPlugin != null)
-                                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock()
+                                    if (DestinationsPlugin.Instance != null)
+                                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock()
                                                 .getType().toString());
 
                                     boolean hasHoe = false;
@@ -114,7 +121,7 @@ public class Processing {
                                         PlaySound(farmSet.currentDestination, soundType.TILL_DIRT);
 
                                         farmSet.lastAction = new Date();
-                                        destBlock.getBlock().setType(Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND));
+                                        destBlock.getBlock().setType(farmerRef.getBridge.convertMaterial(FarmMaterial.FARMLAND));
                                         farmSet.currentDestination = null;
                                         farmSet.currentAction = CurrentAction.IDLE;
                                         continue;
@@ -122,8 +129,8 @@ public class Processing {
                                     break;
                                 case FARMLAND:
                                     if (destBlock.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                        if (Farmer.Instance.getDestinationsPlugin != null)
-                                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock().getType().toString());
+                                        if (DestinationsPlugin.Instance != null)
+                                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock().getType().toString());
 
                                         // Can we plant anything?
                                         if (!this.plantSeeds(npc, destBlock, npcEquip, "HAND", true))
@@ -140,10 +147,10 @@ public class Processing {
                             }
                         }
 
-                        if (Farmer.Instance.getDestinationsPlugin != null)
-                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock().getType().toString());
+                        if (DestinationsPlugin.Instance != null)
+                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINE, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|TRAVERSING|DestinationBlock: " + farmSet.currentDestination.getBlock().getType().toString());
 
-                        convertMat = Farmer.Instance.getBridge.convertMaterial(destBlock.getBlock().getType());
+                        convertMat = farmerRef.getBridge.convertMaterial(destBlock.getBlock().getType());
                         if (convertMat != null) {
                             switch (convertMat) {
                                 case COCOA_BEANS:
@@ -162,7 +169,7 @@ public class Processing {
                                     PlaySound(destBlock, soundType.TILL_DIRT);
 
                                     if (npcFarmer.getValue().plantExisting) {
-                                        Farmer.Instance.getBridge.setMinAge(destBlock);
+                                        farmerRef.getBridge.setMinAge(destBlock);
                                     } else
                                         destBlock.clone().getBlock().setType(Material.AIR);
 
@@ -170,8 +177,8 @@ public class Processing {
                                     farmSet.currentDestination = null;
                                     farmSet.currentAction = CurrentAction.IDLE;
 
-                                    if (Farmer.Instance.getDestinationsPlugin != null)
-                                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Cactus");
+                                    if (DestinationsPlugin.Instance != null)
+                                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Cactus");
                                     break;
 
                                 case CACTUS:
@@ -194,8 +201,8 @@ public class Processing {
                                     farmSet.currentDestination = null;
                                     farmSet.currentAction = CurrentAction.IDLE;
 
-                                    if (Farmer.Instance.getDestinationsPlugin != null)
-                                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Cactus");
+                                    if (DestinationsPlugin.Instance != null)
+                                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Cactus");
                                     break;
                                 case SUGAR_CANE:
                                     // Validate the height of the cactus
@@ -216,8 +223,8 @@ public class Processing {
                                     farmSet.currentDestination = null;
                                     farmSet.currentAction = CurrentAction.IDLE;
 
-                                    if (Farmer.Instance.getDestinationsPlugin != null)
-                                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|SugarCane Farmed");
+                                    if (DestinationsPlugin.Instance != null)
+                                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|SugarCane Farmed");
                                     break;
                                 case WHEAT:
                                 case CARROT:
@@ -226,14 +233,14 @@ public class Processing {
                                 case BEETROOT:
                                 case BEETROOTS:
                                 case BEETROOT_SEEDS:
-                                    if (Farmer.Instance.getBridge.isFullGrown(destBlock)) {
+                                    if (farmerRef.getBridge.isFullGrown(destBlock)) {
                                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
                                         net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                         PlaySound(destBlock, soundType.TILL_DIRT);
                                         addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
                                         if (npcFarmer.getValue().plantExisting) {
-                                            Farmer.Instance.getBridge.setMinAge(destBlock);
+                                            farmerRef.getBridge.setMinAge(destBlock);
                                         } else
                                             destBlock.getBlock().setType(Material.AIR);
 
@@ -241,8 +248,8 @@ public class Processing {
                                         farmSet.currentDestination = null;
                                         farmSet.currentAction = CurrentAction.IDLE;
 
-                                        if (Farmer.Instance.getDestinationsPlugin != null)
-                                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Potato");
+                                        if (DestinationsPlugin.Instance != null)
+                                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Potato");
                                     }
                                     break;
                                 case MELON:
@@ -256,8 +263,8 @@ public class Processing {
                                     farmSet.lastAction = new Date();
                                     farmSet.currentDestination = null;
                                     farmSet.currentAction = CurrentAction.IDLE;
-                                    if (Farmer.Instance.getDestinationsPlugin != null)
-                                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Activity Timeout");
+                                    if (DestinationsPlugin.Instance != null)
+                                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Activity Timeout");
                                     break;
                                 default:
                                     break;
@@ -272,8 +279,8 @@ public class Processing {
                         farmSet.currentDestination = null;
                         farmSet.currentAction = CurrentAction.IDLE;
                         farmSet.lastAction = new Date();
-                        if (Farmer.Instance.getDestinationsPlugin != null)
-                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|Activity Timeout");
+                        if (DestinationsPlugin.Instance != null)
+                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|Activity Timeout");
                     }
                     break;
                 case IDLE:
@@ -315,13 +322,13 @@ public class Processing {
                     farmSet.currentDestination = newLocation;
                     farmSet.lastAttempt = newLocation;
                     farmSet.lastAction = new Date();
-                    if (Farmer.Instance.getDestinationsPlugin != null)
-                        Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.pluginTick|NPC:" + npc.getId() + "|NewLocation|" + newLocation + "Walkto: " + walkToLocation + " Dist:" + npc
+                    if (DestinationsPlugin.Instance != null)
+                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "Farmer_Processing.onPluginTick|NPC:" + npc.getId() + "|NewLocation|" + newLocation + "Walkto: " + walkToLocation + " Dist:" + npc
                                 .getEntity().getLocation().distanceSquared(walkToLocation) + " Block:" + newLocation.getBlock().getType().toString() + " D:" + newLocation.distanceSquared(npc.getEntity().getLocation()));
 
                     net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), walkToLocation);
 
-                    DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), walkToLocation, Farmer.Instance.getDestinationsPlugin.maxDistance,
+                    DestinationsPlugin.Instance.getPathClass.addToQueue(npc, farmSet.destinationsTrait, npc.getEntity().getLocation(), walkToLocation, DestinationsPlugin.Instance.maxDistance,
                             new ArrayList<Material>(), 0, true, true, true, "DestinationsFarmer");
                     return;
             }
@@ -331,26 +338,26 @@ public class Processing {
     private boolean plantSeeds(NPC npc, Location destBlock, Equipment npcEquip, String slot, Boolean plant) {
         // check for items in the main hand and offhand
         if (EquipmentSlot.valueOf(slot) != null && npcEquip.get(EquipmentSlot.valueOf(slot)) != null) {
-            switch (Farmer.Instance.getBridge.convertMaterial(npcEquip.get(EquipmentSlot.valueOf(slot)).getType())) {
+            switch (farmerRef.getBridge.convertMaterial(npcEquip.get(EquipmentSlot.valueOf(slot)).getType())) {
                 case POTATO:
                     // Plant a POTATO
                     if (plant)
-                        destBlock.clone().add(0, 1, 0).getBlock().setType(Farmer.Instance.getBridge.convertMaterial(FarmMaterial.POTATOES));
+                        destBlock.clone().add(0, 1, 0).getBlock().setType(farmerRef.getBridge.convertMaterial(FarmMaterial.POTATOES));
                     return true;
                 case CARROTS:
                 case CARROT:
                     // Plant a carrot
                     if (plant)
-                        destBlock.clone().add(0, 1, 0).getBlock().setType(Farmer.Instance.getBridge.convertMaterial(FarmMaterial.CARROTS));
+                        destBlock.clone().add(0, 1, 0).getBlock().setType(farmerRef.getBridge.convertMaterial(FarmMaterial.CARROTS));
                     return true;
                 case BEETROOT_SEEDS:
                     // BEETROOT
                     if (plant)
-                        destBlock.clone().add(0, 1, 0).getBlock().setType(Farmer.Instance.getBridge.convertMaterial(FarmMaterial.BEETROOT_SEEDS));
+                        destBlock.clone().add(0, 1, 0).getBlock().setType(farmerRef.getBridge.convertMaterial(FarmMaterial.BEETROOT_SEEDS));
                     return true;
                 case WHEAT_SEEDS:
                     if (plant)
-                        destBlock.clone().add(0, 1, 0).getBlock().setType(Farmer.Instance.getBridge.convertMaterial(FarmMaterial.WHEAT_SEEDS));
+                        destBlock.clone().add(0, 1, 0).getBlock().setType(farmerRef.getBridge.convertMaterial(FarmMaterial.WHEAT_SEEDS));
                     return true;
                 default:
                     break;
@@ -377,8 +384,8 @@ public class Processing {
 
                 if (npcInventory[slot] != null) {
                     if (npcInventory[slot].getType() == item.getType() && npcInventory[slot].getAmount() < npcInventory[slot].getType().getMaxStackSize()) {
-                        if (Farmer.Instance.getDestinationsPlugin != null)
-                            Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.FINEST, "NPC:" + npc.getId() + "|SlotCheck: " + npcInventory[slot].getAmount() + item.getAmount() + ">"
+                        if (DestinationsPlugin.Instance != null)
+                            DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.FINEST, "NPC:" + npc.getId() + "|SlotCheck: " + npcInventory[slot].getAmount() + item.getAmount() + ">"
                                     + npcInventory[slot].getType().getMaxStackSize());
                         if ((npcInventory[slot].getAmount() + item.getAmount()) > (npcInventory[slot].getType().getMaxStackSize())) {
                             int leftOver = Math.abs(npcInventory[slot].getType().getMaxStackSize() - (npcInventory[slot].getAmount() + item.getAmount()));
@@ -441,12 +448,12 @@ public class Processing {
                             if (!DestinationsPlugin.Instance.getWorldGuardPlugin.isInRegion(oNewDest, regionName))
                                 continue;
 
-                        if (Farmer.Instance.getDestinationsPlugin.getPlotSquared != null) {
-                            if (!Farmer.Instance.getDestinationsPlugin.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
+                        if (DestinationsPlugin.Instance.getPlotSquared != null) {
+                            if (!DestinationsPlugin.Instance.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
                                 continue;
                         }
 
-                        if (oNewDest.getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
+                        if (oNewDest.getBlock().getType() == farmerRef.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
                             if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
                                 if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
                                     return oNewDest.clone();
@@ -491,12 +498,12 @@ public class Processing {
                             if (oNewDest.equals(farmSet.currentDestination))
                                 continue;
 
-                            if (Farmer.Instance.getDestinationsPlugin.getPlotSquared != null) {
-                                if (!Farmer.Instance.getDestinationsPlugin.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
+                            if (DestinationsPlugin.Instance.getPlotSquared != null) {
+                                if (!DestinationsPlugin.Instance.getPlotSquared.locationInSamePlotAsNPC(npc, oNewDest))
                                     continue;
                             }
 
-                            if (oNewDest.getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
+                            if (oNewDest.getBlock().getType() == farmerRef.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
                                 if (isFarmable(oNewDest.clone().add(0, 1, 0), npc)) {
                                     if (!isFarmerNPCClose(oNewDest.clone().add(0, 1, 0), npc)) {
                                         if (oNewDest.distanceSquared(farmSet.destinationsTrait.currentLocation.destination) <= maxDist)
@@ -522,7 +529,7 @@ public class Processing {
     }
 
     private boolean isFarmerNPCClose(Location location, NPC npc) {
-        for (Map.Entry<Integer, Location_Setting> entry : Farmer.Instance.monitoredNPCs.entrySet()) {
+        for (Map.Entry<Integer, Location_Setting> entry : farmerRef.monitoredNPCs.entrySet()) {
             if (entry.getKey() == npc.getId())
                 continue;
 
@@ -539,7 +546,7 @@ public class Processing {
         Equipment npcEquip = npc.getTrait(Equipment.class);
 
         // Close enough, farm the block
-        FarmMaterial convertMat = Farmer.Instance.getBridge.convertMaterial(blockLocation.getBlock().getType());
+        FarmMaterial convertMat = farmerRef.getBridge.convertMaterial(blockLocation.getBlock().getType());
         if (convertMat != null) {
 
             switch (convertMat) {
@@ -580,7 +587,7 @@ public class Processing {
                 case BEETROOT_SEEDS:
                 case COCOA:
                 case COCOA_BEANS:
-                    if (Farmer.Instance.getBridge.isFullGrown(blockLocation))
+                    if (farmerRef.getBridge.isFullGrown(blockLocation))
                         return true;
                     break;
                 case MELON:
@@ -601,7 +608,7 @@ public class Processing {
 
                     break;
                 case AIR:
-                    if (blockLocation.clone().add(0, -1, 0).getBlock().getType() == Farmer.Instance.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
+                    if (blockLocation.clone().add(0, -1, 0).getBlock().getType() == farmerRef.getBridge.convertMaterial(FarmMaterial.FARMLAND)) {
                         // Can we plant anything?
                         if (this.plantSeeds(npc, blockLocation.clone().add(0, -1, 0), npcEquip, "HAND", false))
                             return true;

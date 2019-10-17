@@ -17,7 +17,10 @@ import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 
 public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements org.bukkit.event.Listener {
 
+    private Farmer  farmerRef;
+
     public void onEnable() {
+
         if (getServer().getPluginManager().getPlugin("NPC_Destinations") == null) {
             Bukkit.getLogger().log(Level.INFO, "[" + getDescription().getName() + "] " + "NPCDestinations2 not found, not registering as plugin");
             getServer().getPluginManager().disablePlugin(this);
@@ -41,18 +44,17 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             }
-            Farmer.Instance = new Farmer();
-            Farmer.Instance.getPluginReference = this;
-            Farmer.Instance.getDestinationsPlugin = DestinationsPlugin.Instance;
+            farmerRef = new Farmer();
+            farmerRef.getPluginReference = this;
             // Force destinations to refresh its language files.
-            Farmer.Instance.getDestinationsPlugin.getLanguageManager.loadLanguages(true);
+            DestinationsPlugin.Instance.getLanguageManager.loadLanguages(true);
         }
 
         // Global references
-        Farmer.Instance.getCitizensPlugin = DestinationsPlugin.Instance.getCitizensPlugin;
+        farmerRef.getCitizensPlugin = DestinationsPlugin.Instance.getCitizensPlugin;
 
         // Setup the default paths in the storage folder.
-        Farmer.Instance.languagePath = new File(DestinationsPlugin.Instance.getDataFolder(), "/Languages/");
+        farmerRef.languagePath = new File(DestinationsPlugin.Instance.getDataFolder(), "/Languages/");
 
         // Generate the default folders and files.
         getDefaultConfigs();
@@ -63,10 +65,10 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
 
     public void onDisable() {
         if (this.isEnabled()) {
-            if (Farmer.Instance != null && Farmer.Instance.getDestinationsPlugin != null) {
-                Farmer.Instance.getDestinationsPlugin.getMessageManager.debugMessage(Level.CONFIG, "nuDestinationFarmer.onDisable()|Stopping Internal Processes");
+            if (farmerRef != null) {
+                DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.CONFIG, "nuDestinationFarmer.onDisable()|Stopping Internal Processes");
             }
-            Farmer.Instance.disablePlugin();
+            farmerRef.disablePlugin();
             Bukkit.getServer().getScheduler().cancelTasks(this);
 
         }
@@ -78,45 +80,38 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
             @Override
             public void run() {
                 try {
-                    Farmer.Instance.getProcessingClass.pluginTick();
+                    farmerRef.getProcessingClass.onPluginTick();
                 } catch (Exception e) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
-                    if (Farmer.Instance.getDestinationsPlugin != null)
-                        Farmer.Instance.getDestinationsPlugin.getMessageManager.logToConsole(Farmer.Instance.getPluginReference, "Error:" + sw.toString());
-                    else
-                        Farmer.Instance.logToConsole("Error on farmertick: " + sw.toString());
+                    DestinationsPlugin.Instance.getMessageManager.logToConsole(farmerRef.getPluginReference, "Error:" + sw.toString());
                 }
             }
-        }, 10L, Farmer.Instance.getDefaultConfig.getLong("tick-interval", 5L));
+        }, 10L, farmerRef.getDefaultConfig.getLong("tick-interval", 5L));
     }
 
     @EventHandler
     public void CitizensDisabled(final CitizensDisableEvent event) {
         Bukkit.getServer().getScheduler().cancelTasks(this);
-        if (Farmer.Instance.getDestinationsPlugin == null) {
-            Farmer.Instance.logToConsole("Disabled..");
-        } else {
-            Farmer.Instance.getDestinationsPlugin.getMessageManager.consoleMessage(Farmer.Instance.getPluginReference, "farmer", "console_messages.plugin_ondisable");
-        }
-        Farmer.Instance = null;
+        DestinationsPlugin.Instance.getMessageManager.consoleMessage(farmerRef.getPluginReference, "farmer", "console_messages.plugin_ondisable");
+        farmerRef = null;
     }
 
     void getDefaultConfigs() {
         // Create the default folders
         if (!DestinationsPlugin.Instance.getDataFolder().exists())
             DestinationsPlugin.Instance.getDataFolder().mkdirs();
-        if (!Farmer.Instance.languagePath.exists())
-            Farmer.Instance.languagePath.mkdirs();
+        if (!farmerRef.languagePath.exists())
+            farmerRef.languagePath.mkdirs();
 
         if (!(new File(getDataFolder(), "config.yml").exists()))
             exportConfig(getDataFolder(), "config.yml");
         
         // Validate that the default package is in the MountPackages folder. If
         // not, create it.
-        Farmer.Instance.getDefaultConfig = Farmer.Instance.getDestinationsPlugin.getUtilitiesClass.loadConfiguration(new File(this.getDataFolder(), "config.yml"));
-        exportConfig(Farmer.Instance.languagePath, "en_def-farmer.yml");
+        farmerRef.getDefaultConfig = DestinationsPlugin.Instance.getUtilitiesClass.loadConfiguration(new File(this.getDataFolder(), "config.yml"));
+        exportConfig(farmerRef.languagePath, "en_def-farmer.yml");
 
     }
 
@@ -128,10 +123,7 @@ public class BukkitPlugin extends org.bukkit.plugin.java.JavaPlugin implements o
             try {
                 FileUtils.copyURLToFile((URL) getClass().getResource("/" + filename), fileConfig);
             } catch (IOException e1) {
-                if (Farmer.Instance.getDestinationsPlugin != null)
-                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.SEVERE, "nuDestinationsFarmer.exportConfig()|FailedToExtractFile(" + filename + ")");
-                else
-                    Farmer.Instance.logToConsole(" Failed to extract default file (" + filename + ")");
+                DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.SEVERE, "nuDestinationsFarmer.exportConfig()|FailedToExtractFile(" + filename + ")");
                 return;
             }
         }

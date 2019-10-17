@@ -3,6 +3,7 @@ package net.livecar.nuttyworks.destinations_farmer.plugin;
 import java.util.Date;
 import java.util.logging.Level;
 
+import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -34,13 +35,13 @@ public class PluginExtension extends DestinationsAddon {
 
     @Override
     public String getQuickDescription() {
-        String[] response = pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "messages.plugin_description", "");
+        String[] response = DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "messages.plugin_description", "");
         return response[0];
     }
 
     @Override
     public String getDestinationHelp(NPC npc, NPCDestinationsTrait npcTrait, Destination_Setting location) {
-        String[] response = pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", null, "messages.plugin_destination", npcTrait, location, npc, null, 0);
+        String[] response = DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", null, "messages.plugin_destination", npcTrait, location, npc, null, 0);
         return response[0];
     }
 
@@ -55,17 +56,17 @@ public class PluginExtension extends DestinationsAddon {
                         if (!locSetting.regionName.equals("")) {
                             message = message.replaceAll("<farmer\\.value>", locSetting.regionName);
                             message = message.replaceAll("<farmer\\.setting>", "Region Name");
-                            message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
-                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
-                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
-                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
+                            message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
+                                    : DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
+                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
+                                    : DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
                         } else if (locSetting.maxDistance > 0) {
                             message = message.replaceAll("<farmer\\.value>", Integer.toString(locSetting.maxDistance));
                             message = message.replaceAll("<farmer\\.setting>", "Max Distance");
-                            message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
-                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
-                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
-                                    : pluginReference.getDestinationsPlugin.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
+                            message = message.replaceAll("<farmer\\.replant>", (locSetting.plantExisting ? DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.replant", "")[0]
+                                    : DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.replant_hand", "")[0]));
+                            message = message.replaceAll("<farmer\\.block>", (locSetting.blocking ? DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.blocking", "")[0]
+                                    : DestinationsPlugin.Instance.getMessageManager.buildMessage("farmer", "result_messages.nonblocking", "")[0]));
                         } else {
                             message = message.replaceAll("<farmer\\.value>", "Not Set");
                             message = message.replaceAll("<farmer\\.setting>", "Max / Region");
@@ -134,7 +135,7 @@ public class PluginExtension extends DestinationsAddon {
             if (pluginReference.npcSettings.containsKey(npc.getId())) {
                 if (pluginReference.npcSettings.get(npc.getId()).locations.containsKey(trait.currentLocation.LocationIdent)) {
                     if (!pluginReference.monitoredNPCs.containsKey(npc.getId())) {
-                        pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationReached|NPC:" + npc.getId() + "|Monitored location reached, assigning as monitor");
+                        DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationReached|NPC:" + npc.getId() + "|Monitored location reached, assigning as monitor");
                         trait.setMonitoringPlugin(pluginReference.getPluginReference, trait.currentLocation);
                         pluginReference.monitoredNPCs.put(npc.getId(), pluginReference.npcSettings.get(npc.getId()).locations.get(trait.currentLocation.LocationIdent));
                         return;
@@ -144,12 +145,12 @@ public class PluginExtension extends DestinationsAddon {
         } else {
             if (pluginReference.monitoredNPCs.containsKey(Integer.valueOf(npc.getId()))) {
                 if ((npc.getEntity().getLocation().getBlockX() != trait.currentLocation.destination.getBlockX()) || (npc.getEntity().getLocation().getBlockZ() != trait.currentLocation.destination.getBlockZ())) {
-                    pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId()
+                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId()
                             + "|plugin disabled for this npc, aborting and returning to destination");
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.ABORTING;
                     return;
                 }
-                pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|plugin disabled for this npc, removing monitors.");
+                DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|plugin disabled for this npc, removing monitors.");
                 trait.unsetMonitoringPlugin();
                 ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.IDLE;
                 ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentDestination = null;
@@ -164,7 +165,7 @@ public class PluginExtension extends DestinationsAddon {
             if (pluginReference.npcSettings.get(npc.getId()).locations.containsKey(destination.LocationIdent)) {
                 // Event triggered
                 if (!pluginReference.monitoredNPCs.containsKey(npc.getId())) {
-                    pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationReached|NPC:" + npc.getId() + "|Monitored location reached, assigning as monitor");
+                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationReached|NPC:" + npc.getId() + "|Monitored location reached, assigning as monitor");
                     trait.setMonitoringPlugin(pluginReference.getPluginReference, destination);
                     pluginReference.monitoredNPCs.put(npc.getId(), pluginReference.npcSettings.get(npc.getId()).locations.get(destination.LocationIdent));
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.IDLE;
@@ -186,11 +187,11 @@ public class PluginExtension extends DestinationsAddon {
             Location curDestLoc = trait.currentLocation.destination;
             if (((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).locations.containsKey(trait.currentLocation.LocationIdent)) {
                 if ((entityLocation.getBlockX() != curDestLoc.getBlockX()) || (entityLocation.getBlockZ() != curDestLoc.getBlockZ())) {
-                    pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|New Location, not at start, aborting.");
+                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|New Location, not at start, aborting.");
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.ABORTING;
                     return true;
                 } else if (pluginReference.monitoredNPCs.containsKey(Integer.valueOf(npc.getId()))) {
-                    pluginReference.getDestinationsPlugin.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|New Location,clearing monitors and releasing control.");
+                    DestinationsPlugin.Instance.getMessageManager.debugMessage(Level.INFO, "DestinationsEventsListener.onNavigationNewDestination|NPC:" + npc.getId() + "|New Location,clearing monitors and releasing control.");
                     trait.unsetMonitoringPlugin();
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentAction = NPC_Setting.CurrentAction.IDLE;
                     ((NPC_Setting) pluginReference.npcSettings.get(Integer.valueOf(npc.getId()))).currentDestination = null;
@@ -212,7 +213,7 @@ public class PluginExtension extends DestinationsAddon {
                     else {
                         if (farmerLocation.blockUntil < new Date().getTime()) {
                             if (!farmerLocation.regionName.equals("")) {
-                                 if (Farmer.Instance.getProcessingClass.locateNPCWork(pluginReference.npcSettings.get(npc.getId()), location.destination, farmerLocation.regionName, npc) != null) {
+                                 if (pluginReference.getProcessingClass.locateNPCWork(pluginReference.npcSettings.get(npc.getId()), location.destination, farmerLocation.regionName, npc) != null) {
                                     if (npc.getEntity().getLocation().distanceSquared(location.destination) < 4) {
                                         onNavigationReached(npc, npcTrait, location);
                                     }

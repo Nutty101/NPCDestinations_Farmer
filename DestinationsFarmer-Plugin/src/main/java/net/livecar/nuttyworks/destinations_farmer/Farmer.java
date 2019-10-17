@@ -16,15 +16,12 @@ import net.livecar.nuttyworks.destinations_farmer.plugin.storage.NPC_Setting;
 import net.livecar.nuttyworks.npc_destinations.DestinationsPlugin;
 
 public class Farmer {
-    // For quick reference to this instance of the plugin.
-    public static Farmer                  Instance              = null;
 
     // For quick reference to this instance of the plugin.
     public FileConfiguration              getDefaultConfig;
 
     // Links to classes
     public Citizens                       getCitizensPlugin;
-    public DestinationsPlugin             getDestinationsPlugin = null;
     public BukkitPlugin                   getPluginReference    = null;
     public Processing                     getProcessingClass    = null;
     public VersionInterface               getBridge             = null;
@@ -40,11 +37,6 @@ public class Farmer {
     public File                           languagePath;
 
     public Farmer() {
-        this.getFarmerPlugin = new PluginExtension(this);
-        DestinationsPlugin.Instance.getPluginManager.registerPlugin(getFarmerPlugin);
-        DestinationsPlugin.Instance.getCommandManager.registerCommandClass(Commands.class);
-
-        getProcessingClass = new Processing();
 
         // Mark the version
         if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_8_R3")) {
@@ -83,9 +75,14 @@ public class Farmer {
         } else if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_14_R2")) {
             getBridge = new MC_1_14_R2();
             Version = 11420;
-        } else {
-            return;
         }
+
+        this.getProcessingClass = new Processing(this);
+        this.getFarmerPlugin = new PluginExtension(this);
+        DestinationsPlugin.Instance.getPluginManager.registerPlugin(getFarmerPlugin);
+        DestinationsPlugin.Instance.getCommandManager.registerCommandClass(Commands.class);
+
+
     }
 
     public void logToConsole(String logLine) {
