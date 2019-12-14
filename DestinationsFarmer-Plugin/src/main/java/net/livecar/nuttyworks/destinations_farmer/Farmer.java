@@ -75,6 +75,9 @@ public class Farmer {
         } else if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_14_R2")) {
             getBridge = new MC_1_14_R2();
             Version = 11420;
+        } else if (Bukkit.getServer().getClass().getPackage().getName().endsWith("v1_15_R1")) {
+            getBridge = new MC_1_14_R2();
+            Version = 11500;
         }
 
         this.getProcessingClass = new Processing(this);
