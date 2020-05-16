@@ -223,7 +223,17 @@ public class PluginExtension extends DestinationsAddon {
                                     return false;
                                 }
                             } else {
-                                
+                                if (farmerLocation.maxDistance > 0) {
+                                    if (pluginReference.getProcessingClass.locateNPCWork(pluginReference.npcSettings.get(npc.getId()), location.destination, farmerLocation.maxDistance, npc) != null) {
+                                        if (npc.getEntity().getLocation().distanceSquared(location.destination) < 4) {
+                                            onNavigationReached(npc, npcTrait, location);
+                                        }
+                                        return true;
+                                    } else {
+                                        farmerLocation.blockUntil = new Date().getTime() + 10000L;
+                                        return false;
+                                    }
+                                }
                             }
                         }
                     }
@@ -231,6 +241,6 @@ public class PluginExtension extends DestinationsAddon {
             }
         }
         return true;
-
+        
     }
 }

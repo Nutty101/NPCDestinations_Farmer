@@ -117,7 +117,8 @@ public class Processing {
 
                                     if (hasHoe) {
                                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                                        if (npc.getEntity() instanceof Player)
+                                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                         PlaySound(farmSet.currentDestination, soundType.TILL_DIRT);
 
                                         farmSet.lastAction = new Date();
@@ -192,7 +193,8 @@ public class Processing {
                                         }
                                     }
                                     net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                                    net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                                    if (npc.getEntity() instanceof Player)
+                                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                     addToInventory(npc, destBlock.clone().add(0, cactusTop, 0).getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
                                     PlaySound(destBlock, soundType.TILL_DIRT);
@@ -215,7 +217,8 @@ public class Processing {
                                     }
 
                                     net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                                    net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                                    if (npc.getEntity() instanceof Player)
+                                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                     PlaySound(destBlock, soundType.TILL_DIRT);
                                     addToInventory(npc, destBlock.clone().add(0, caneTop, 0).getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
                                     destBlock.clone().add(0, caneTop, 0).getBlock().setType(Material.AIR);
@@ -235,7 +238,8 @@ public class Processing {
                                 case BEETROOT_SEEDS:
                                     if (farmerRef.getBridge.isFullGrown(destBlock)) {
                                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                                        if (npc.getEntity() instanceof Player)
+                                            net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                         PlaySound(destBlock, soundType.TILL_DIRT);
                                         addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
 
@@ -255,7 +259,8 @@ public class Processing {
                                 case MELON:
                                 case PUMPKIN:
                                     net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), destBlock);
-                                    net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
+                                    if (npc.getEntity() instanceof Player)
+                                        net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) npc.getEntity());
                                     PlaySound(destBlock, soundType.TILL_DIRT);
                                     addToInventory(npc, destBlock.clone().getBlock().getDrops().toArray(new ItemStack[destBlock.clone().getBlock().getDrops().size()]));
                                     destBlock.getBlock().setType(Material.AIR);
@@ -311,6 +316,8 @@ public class Processing {
                         farmSet.lastAttempt = newLocation;
                         farmSet.lastAction = new Date();
                         farmSet.currentAction = CurrentAction.TRAVERSING;
+                        if (walkToLocation.getPitch() == -90)
+                            walkToLocation.setPitch(0);
                         net.citizensnpcs.util.Util.faceLocation(npc.getEntity(), walkToLocation);
                         break;
                     }
@@ -587,13 +594,12 @@ public class Processing {
                 case BEETROOT_SEEDS:
                 case COCOA:
                 case COCOA_BEANS:
+                case WHEAT:
                     if (farmerRef.getBridge.isFullGrown(blockLocation))
                         return true;
                     break;
                 case MELON:
                 case PUMPKIN:
-                case WHEAT:
-                    return true;
                 case GRASS_BLOCK:
                 case DIRT:
                     if (blockLocation.getBlock().getRelative(0, 1, 0).getType() != Material.AIR)
